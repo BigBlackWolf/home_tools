@@ -27,3 +27,21 @@ class Main(APIView):
         except IntegrityError as e:
             data = {"error": e.args[1]}
         return Response({"data": data})
+
+
+class ProductView(APIView):
+    def get(self, request, product_id, *args, **kwargs):
+        data = Products.objects.filter(id=product_id).values()
+        return Response({"data": data})
+
+    def patch(self, request, product_id, *args, **kwargs):
+        schema = ProductValidator()
+        validated = schema.load(request.data.get("products", {}))
+
+        product = Products.objects.filter(id=product_id)
+        product.update(**validated)
+        return Response({"data": product.values()})
+
+    def delete(self, request, product_id, *args, **kwargs):
+        Products.objects.filter(id=product_id).delete()
+        return Response({"data": "Success"})

@@ -3,7 +3,7 @@ from marshmallow.validate import Length, Range
 
 
 class ProductValidator(Schema):
-    name = fields.Str(validate=Length(1, 30), required=True)
+    name = fields.Str(validate=Length(1, 30))
     quantity = fields.Integer(validate=Range(0, ))
     date_modified = fields.Date(dump_only=True)
     measure = fields.Integer(validate=Range(1, 3))
