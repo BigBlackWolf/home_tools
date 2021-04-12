@@ -19,5 +19,5 @@ from food.urls import urls
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^api/v1/', include(urls)),
+    url(r'', include(urls)),
 ]
