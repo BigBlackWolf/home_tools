@@ -9,6 +9,12 @@ Project for automation home exercises
 
 ## Installation
 
+
+- Install packages
+```shell
+sudo apt-get install python3-dev libmysqlclient-dev build-essential
+```
+
 - Create db
 ```mysql
 CREATE USER 'home_user'@'localhost' IDENTIFIED BY 'home_password';
@@ -16,12 +22,7 @@ CREATE DATABASE home_tools;
 GRANT ALL PRIVILEGES ON home_tools.* TO 'home_user'@'localhost';
 ```
 
-- Install packages
-
-```shell
-sudo apt-get install python3-dev libmysqlclient-dev build-essential
-```
-
+- Install dependencies
 ```shell
 pip install -r requirement.txt
 python manage.py makemigrations

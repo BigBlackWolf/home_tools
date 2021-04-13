@@ -19,3 +19,11 @@ class Products(models.Model):
     date_modified = models.DateField(auto_now_add=True)
     measure = models.IntegerField(choices=Measure.choices())
     category = models.CharField(max_length=30)
+
+
+class Dishes(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=30, unique=True, blank=False)
+    photo = models.TextField()
+    recipe = models.TextField(blank=False)
+    date_modified = models.DateField(auto_now_add=True)

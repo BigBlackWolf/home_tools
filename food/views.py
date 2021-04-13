@@ -3,20 +3,20 @@ from rest_framework.response import Response
 from marshmallow.exceptions import ValidationError
 from django.db.utils import IntegrityError
 
-from .models import Products
-from .validations import ProductValidator
+from .models import Products, Dishes
+from .validations import ProductValidator, DishValidator
 
 
-class Main(APIView):
+class ProductsView(APIView):
     def get(self, request, *args, **kwargs):
         result = Products.objects.all().values()
-        return Response({"products": result})
+        return Response({"data": result})
 
     def post(self, request, *args, **kwargs):
         user_data = request.data
         data = []
         try:
-            for i in user_data["products"]:
+            for i in user_data["data"]:
                 schema = ProductValidator()
                 validated = schema.load(i)
                 db_obj = Products(**validated)
@@ -36,7 +36,7 @@ class ProductView(APIView):
 
     def patch(self, request, product_id, *args, **kwargs):
         schema = ProductValidator()
-        validated = schema.load(request.data.get("products", {}))
+        validated = schema.load(request.data.get("data", {}))
 
         product = Products.objects.filter(id=product_id)
         product.update(**validated)
@@ -44,4 +44,44 @@ class ProductView(APIView):
 
     def delete(self, request, product_id, *args, **kwargs):
         Products.objects.filter(id=product_id).delete()
+        return Response({"data": "Success"})
+
+
+class DishesView(APIView):
+    def get(self, request, *args, **kwargs):
+        result = Dishes.objects.all().values()
+        return Response({"data": result})
+
+    def post(self, request, *args, **kwargs):
+        user_data = request.data
+        data = []
+        try:
+            for i in user_data["data"]:
+                schema = DishValidator()
+                validated = schema.load(i)
+                db_obj = Dishes(**validated)
+                db_obj.save()
+                data.append(validated)
+        except ValidationError as e:
+            data = e.messages
+        except IntegrityError as e:
+            data = {"error": e.args[1]}
+        return Response({"data": data})
+
+
+class DishView(APIView):
+    def get(self, request, dish_id, *args, **kwargs):
+        data = Dishes.objects.filter(id=dish_id).values()
+        return Response({"data": data})
+
+    def patch(self, request, dish_id, *args, **kwargs):
+        schema = DishValidator()
+        validated = schema.load(request.data.get("data", {}))
+
+        dish = Dishes.objects.filter(id=dish_id)
+        dish.update(**validated)
+        return Response({"data": dish.values()})
+
+    def delete(self, request, dish_id, *args, **kwargs):
+        Dishes.objects.filter(id=dish_id).delete()
         return Response({"data": "Success"})
