@@ -15,3 +15,4 @@ class DishValidator(Schema):
     photo = fields.Str(validate=URL())
     recipe = fields.Str()
     date_modified = fields.Date(dump_only=True)
+    ingredients = fields.Dict(fields.Str, fields.Integer)

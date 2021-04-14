@@ -13,15 +13,14 @@ class ProductsView(APIView):
         return Response({"data": result})
 
     def post(self, request, *args, **kwargs):
-        user_data = request.data
+        user_data = request.data.get("data", {})
         data = []
+        schema = ProductValidator()
         try:
-            for i in user_data["data"]:
-                schema = ProductValidator()
-                validated = schema.load(i)
-                db_obj = Products(**validated)
-                db_obj.save()
-                data.append(validated)
+            validated = schema.load(user_data)
+            db_obj = Products(**validated)
+            db_obj.save()
+            data.append(validated)
         except ValidationError as e:
             data = e.messages
         except IntegrityError as e:
@@ -32,7 +31,8 @@ class ProductsView(APIView):
 class ProductView(APIView):
     def get(self, request, product_id, *args, **kwargs):
         data = Products.objects.filter(id=product_id).values()
-        return Response({"data": data})
+        result = next(iter(data), {})
+        return Response({"data": result})
 
     def patch(self, request, product_id, *args, **kwargs):
         schema = ProductValidator()
@@ -53,15 +53,17 @@ class DishesView(APIView):
         return Response({"data": result})
 
     def post(self, request, *args, **kwargs):
-        user_data = request.data
+        user_data = request.data.get('data', {})
         data = []
+        schema = DishValidator()
         try:
-            for i in user_data["data"]:
-                schema = DishValidator()
-                validated = schema.load(i)
-                db_obj = Dishes(**validated)
-                db_obj.save()
-                data.append(validated)
+            validated = schema.load(user_data)
+            ingredients = validated.pop('ingredients', {})
+
+            db_obj = Dishes(**validated)
+            db_obj.insert_products(ingredients)
+            db_obj.save()
+            data.append(validated)
         except ValidationError as e:
             data = e.messages
         except IntegrityError as e:
@@ -72,7 +74,8 @@ class DishesView(APIView):
 class DishView(APIView):
     def get(self, request, dish_id, *args, **kwargs):
         data = Dishes.objects.filter(id=dish_id).values()
-        return Response({"data": data})
+        result = next(iter(data), {})
+        return Response({"data": result})
 
     def patch(self, request, dish_id, *args, **kwargs):
         schema = DishValidator()
