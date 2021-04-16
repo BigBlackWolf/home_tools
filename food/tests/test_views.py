@@ -1,5 +1,6 @@
 from django.test.testcases import TestCase, Client
 from copy import deepcopy
+from datetime import date
 
 
 class Food(TestCase):
@@ -43,6 +44,8 @@ class Food(TestCase):
 
     def test_post_successful(self):
         test_data = deepcopy(self.test_data)
+        test_data["data"]["date_modified"] = date.today().strftime("%Y-%m-%d")
+        test_data["data"]["id"] = 1
         test_data["data"] = [test_data["data"]]
 
         response = self.client.post(
@@ -50,6 +53,28 @@ class Food(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), test_data)
+
+        response = self.client.get("/food/1")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["data"], test_data["data"][0])
+
+        to_patch = test_data["data"][0]
+        to_patch["name"] = "ttt"
+        del to_patch["id"]
+        del to_patch["date_modified"]
+        response = self.client.patch(
+            "/food/1", data={"data": to_patch}, content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["data"]["name"], "ttt")
+
+        response = self.client.delete("/dishes/1", content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["data"], "Success")
+
+        response = self.client.get("/dishes/1", content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["data"], {})
 
 
 class Dishes(TestCase):
@@ -92,6 +117,8 @@ class Dishes(TestCase):
 
     def test_post_successful(self):
         test_data = deepcopy(self.test_data)
+        test_data["data"]["date_modified"] = date.today().strftime("%Y-%m-%d")
+        test_data["data"]["id"] = 1
         test_data["data"] = [test_data["data"]]
 
         response = self.client.post(
@@ -99,3 +126,25 @@ class Dishes(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), test_data)
+
+        response = self.client.get("/dishes/1")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["data"], test_data["data"][0])
+
+        to_patch = test_data["data"][0]
+        to_patch["name"] = "ttt"
+        del to_patch["id"]
+        del to_patch["date_modified"]
+        response = self.client.patch(
+            "/dishes/1", data={"data": to_patch}, content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["data"]["name"], "ttt")
+
+        response = self.client.delete("/dishes/1", content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["data"], "Success")
+
+        response = self.client.get("/dishes/1", content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["data"], {})

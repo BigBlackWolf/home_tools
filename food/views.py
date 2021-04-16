@@ -20,7 +20,8 @@ class ProductsView(APIView):
             validated = schema.load(user_data)
             db_obj = Products(**validated)
             db_obj.save()
-            data.append(validated)
+            obj = db_obj.to_dict()
+            data.append(obj)
         except ValidationError as e:
             data = e.messages
         except IntegrityError as e:
@@ -42,7 +43,9 @@ class ProductView(APIView):
 
         product = Products.objects.filter(id=product_id)
         product.update(**validated)
-        return Response({"data": product.values()})
+        data = product.values()
+        result = next(iter(data), {})
+        return Response({"data": result})
 
     def delete(self, request, product_id, *args, **kwargs):
         Products.objects.filter(id=product_id).delete()
@@ -65,7 +68,8 @@ class DishesView(APIView):
             db_obj = Dishes(**validated)
             db_obj.insert_products(ingredients)
             db_obj.save()
-            data.append(validated)
+            obj = db_obj.to_dict()
+            data.append(obj)
         except ValidationError as e:
             data = e.messages
         except IntegrityError as e:
@@ -87,7 +91,9 @@ class DishView(APIView):
 
         dish = Dishes.objects.filter(id=dish_id)
         dish.update(**validated)
-        return Response({"data": dish.values()})
+        data = dish.values()
+        result = next(iter(data), {})
+        return Response({"data": result})
 
     def delete(self, request, dish_id, *args, **kwargs):
         Dishes.objects.filter(id=dish_id).delete()

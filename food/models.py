@@ -1,5 +1,7 @@
 from django.db import models
 from enum import Enum
+from copy import deepcopy
+from datetime import date
 
 
 class Measure(Enum):
@@ -19,6 +21,15 @@ class Products(models.Model):
     date_modified = models.DateField(auto_now_add=True)
     measure = models.IntegerField(choices=Measure.choices())
     category = models.CharField(max_length=30)
+
+    def to_dict(self) -> dict:
+        properties = deepcopy(vars(self))
+        del properties["_state"]
+        return properties
+
+    def save(self, *args, **kwargs):
+        self.date_modified = date.today()
+        super(Products, self).save()
 
 
 class Dishes(models.Model):
@@ -43,6 +54,15 @@ class Dishes(models.Model):
         for pd in products_dishes:
             data[pd.product.name] = pd.quantity
         return data
+
+    def to_dict(self) -> dict:
+        properties = deepcopy(vars(self))
+        del properties["_state"]
+        return properties
+
+    def save(self, *args, **kwargs):
+        self.date_modified = date.today()
+        super(Dishes, self).save()
 
 
 class DishesProducts(models.Model):

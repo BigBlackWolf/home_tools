@@ -3,7 +3,7 @@
 Project for automation home exercises 
 
 [![Build Status](https://travis-ci.org/BigBlackWolf/home_tools.svg?branch=main)](https://travis-ci.org/BigBlackWolf/home_tools)
-[![Coverage Status](https://coveralls.io/repos/github/BigBlackWolf/home_tools/badge.svg?branch=main)](https://coveralls.io/github/BigBlackWolf/home_tools?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/BigBlackWolf/home_tools/badge.svg)](https://coveralls.io/github/BigBlackWolf/home_tools)
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 
 ## Requirements
