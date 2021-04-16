@@ -18,6 +18,6 @@ from django.contrib import admin
 from food.urls import urls
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'', include(urls)),
+    url(r"^admin/", admin.site.urls),
+    url(r"", include(urls)),
 ]

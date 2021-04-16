@@ -53,12 +53,12 @@ class DishesView(APIView):
         return Response({"data": result})
 
     def post(self, request, *args, **kwargs):
-        user_data = request.data.get('data', {})
+        user_data = request.data.get("data", {})
         data = []
         schema = DishValidator()
         try:
             validated = schema.load(user_data)
-            ingredients = validated.pop('ingredients', {})
+            ingredients = validated.pop("ingredients", {})
 
             db_obj = Dishes(**validated)
             db_obj.insert_products(ingredients)
