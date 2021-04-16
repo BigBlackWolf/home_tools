@@ -23,7 +23,7 @@ class Products(models.Model):
 
 class Dishes(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=30, unique=True, blank=False)
+    name = models.CharField(max_length=200, unique=True, blank=False)
     photo = models.TextField()
     recipe = models.TextField(blank=False)
     date_modified = models.DateField(auto_now_add=True)

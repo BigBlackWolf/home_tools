@@ -19,7 +19,7 @@ sudo apt-get install python3-dev libmysqlclient-dev build-essential
 ```mysql
 CREATE USER 'home_user'@'localhost' IDENTIFIED BY 'home_password';
 CREATE DATABASE home_tools;
-GRANT ALL PRIVILEGES ON home_tools.* TO 'home_user'@'localhost';
+GRANT ALL PRIVILEGES ON *.* TO 'home_user'@'localhost';
 ```
 
 - Install dependencies

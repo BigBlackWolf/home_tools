@@ -25,7 +25,9 @@ class ProductsView(APIView):
             data = e.messages
         except IntegrityError as e:
             data = {"error": e.args[1]}
-        return Response({"data": data})
+        else:
+            return Response({"data": data})
+        return Response({"data": data}, status=422)
 
 
 class ProductView(APIView):
@@ -68,7 +70,9 @@ class DishesView(APIView):
             data = e.messages
         except IntegrityError as e:
             data = {"error": e.args[1]}
-        return Response({"data": data})
+        else:
+            return Response({"data": data})
+        return Response({"data": data}, status=422)
 
 
 class DishView(APIView):
