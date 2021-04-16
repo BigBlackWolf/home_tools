@@ -7,10 +7,10 @@ class Food(TestCase):
         self.client = Client()
         self.test_data = {
             "data": {
-                "name": "Огурец",
+                "name": "Ogurec",
                 "measure": 1,
                 "quantity": 1,
-                "category": "Холодильник",
+                "category": "Holodilnik",
             }
         }
 
@@ -21,7 +21,7 @@ class Food(TestCase):
 
     def test_post_invalid_field(self):
         test_data = deepcopy(self.test_data)
-        test_data["data"]["abc"] = "Взять макарони, сварить и добавить пасту"
+        test_data["data"]["abc"] = "aaa"
 
         response = self.client.post(
             "/food/", data=test_data, content_type="application/json"
@@ -57,8 +57,8 @@ class Dishes(TestCase):
         self.client = Client()
         self.test_data = {
             "data": {
-                "name": "Паста",
-                "recipe": "Сварить макароны",
+                "name": "Pasta",
+                "recipe": "Boil makarons",
                 "photo": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
             }
         }
@@ -70,7 +70,7 @@ class Dishes(TestCase):
 
     def test_post_invalid_field(self):
         test_data = deepcopy(self.test_data)
-        test_data["data"]["abc"] = "Взять макарони, сварить и добавить пасту"
+        test_data["data"]["abc"] = "aaa"
 
         response = self.client.post(
             "/dishes/", data=test_data, content_type="application/json"

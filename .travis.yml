@@ -1,0 +1,15 @@
+language: python
+python:
+  - "3.8"
+install:
+  - pip install coverage coveralls
+  - pip install -r requirements.txt
+services: mysql
+before_script:
+  - mysql -u root -e 'CREATE DATABASE home_tools;'
+  - mysql -u root -e "CREATE USER 'home_user'@'localhost' IDENTIFIED BY 'home_password'"
+  - mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'home_user'@'localhost';"
+script:
+  - coverage run --source='.' manage.py test
+after_success:
+  - coveralls
