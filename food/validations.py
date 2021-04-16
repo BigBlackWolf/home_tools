@@ -8,7 +8,7 @@ class ProductValidator(Schema):
         validate=Range(
             0,
         ),
-        required=True
+        required=True,
     )
     date_modified = fields.Date(dump_only=True)
     measure = fields.Integer(validate=Range(1, 3), required=True)
