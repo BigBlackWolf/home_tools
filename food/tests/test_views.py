@@ -1,6 +1,9 @@
 from django.test.testcases import TestCase, Client
 from copy import deepcopy
 from datetime import date
+from rest_framework.authtoken.models import Token
+
+from food.models import CustomUser
 
 
 class Food(TestCase):
@@ -14,6 +17,11 @@ class Food(TestCase):
                 "category": "Holodilnik",
             }
         }
+        user = CustomUser(email="test@test.com", username="test", password="test")
+        user.save()
+        token, _ = Token.objects.get_or_create(user=user)
+        self.token = token
+        self.headers = {"HTTP_AUTHORIZATION": f"Token {token}"}
 
     def test_get(self):
         response = self.client.get("/food/")
@@ -25,7 +33,7 @@ class Food(TestCase):
         test_data["data"]["abc"] = "aaa"
 
         response = self.client.post(
-            "/food/", data=test_data, content_type="application/json"
+            "/food/", data=test_data, content_type="application/json", **self.headers
         )
         self.assertEqual(response.status_code, 422)
         self.assertEqual(response.json(), {"data": {"abc": ["Unknown field."]}})
@@ -35,7 +43,7 @@ class Food(TestCase):
         del test_data["data"]["measure"]
 
         response = self.client.post(
-            "/food/", data=test_data, content_type="application/json"
+            "/food/", data=test_data, content_type="application/json", **self.headers
         )
         self.assertEqual(response.status_code, 422)
         self.assertEqual(
@@ -49,7 +57,7 @@ class Food(TestCase):
         test_data["data"] = [test_data["data"]]
 
         response = self.client.post(
-            "/food/", data=self.test_data, content_type="application/json"
+            "/food/", data=self.test_data, content_type="application/json", **self.headers
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), test_data)
@@ -63,12 +71,12 @@ class Food(TestCase):
         del to_patch["id"]
         del to_patch["date_modified"]
         response = self.client.patch(
-            "/food/1", data={"data": to_patch}, content_type="application/json"
+            "/food/1", data={"data": to_patch}, content_type="application/json", **self.headers
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"]["name"], "ttt")
 
-        response = self.client.delete("/dishes/1", content_type="application/json")
+        response = self.client.delete("/dishes/1", content_type="application/json", **self.headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], "Success")
 
@@ -88,6 +96,12 @@ class Dishes(TestCase):
             }
         }
 
+        user = CustomUser(email="test@test.com", username="test", password="test")
+        user.save()
+        token, _ = Token.objects.get_or_create(user=user)
+        self.token = token
+        self.headers = {"HTTP_AUTHORIZATION": f"Token {token}"}
+
     def test_get(self):
         response = self.client.get("/dishes/")
         self.assertEqual(response.status_code, 200)
@@ -98,7 +112,7 @@ class Dishes(TestCase):
         test_data["data"]["abc"] = "aaa"
 
         response = self.client.post(
-            "/dishes/", data=test_data, content_type="application/json"
+            "/dishes/", data=test_data, content_type="application/json", **self.headers
         )
         self.assertEqual(response.status_code, 422)
         self.assertEqual(response.json(), {"data": {"abc": ["Unknown field."]}})
@@ -108,7 +122,7 @@ class Dishes(TestCase):
         del test_data["data"]["name"]
 
         response = self.client.post(
-            "/dishes/", data=test_data, content_type="application/json"
+            "/dishes/", data=test_data, content_type="application/json", **self.headers
         )
         self.assertEqual(response.status_code, 422)
         self.assertEqual(
@@ -122,7 +136,7 @@ class Dishes(TestCase):
         test_data["data"] = [test_data["data"]]
 
         response = self.client.post(
-            "/dishes/", data=self.test_data, content_type="application/json"
+            "/dishes/", data=self.test_data, content_type="application/json", **self.headers
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), test_data)
@@ -136,12 +150,12 @@ class Dishes(TestCase):
         del to_patch["id"]
         del to_patch["date_modified"]
         response = self.client.patch(
-            "/dishes/1", data={"data": to_patch}, content_type="application/json"
+            "/dishes/1", data={"data": to_patch}, content_type="application/json", **self.headers
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"]["name"], "ttt")
 
-        response = self.client.delete("/dishes/1", content_type="application/json")
+        response = self.client.delete("/dishes/1", content_type="application/json", **self.headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], "Success")
 

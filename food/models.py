@@ -1,7 +1,19 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
+
 from enum import Enum
 from copy import deepcopy
 from datetime import date
+
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)
 
 
 class Measure(Enum):
@@ -14,7 +26,14 @@ class Measure(Enum):
         return tuple((i.value, i.name) for i in cls)
 
 
-class Products(models.Model):
+class CustomUser(AbstractUser):
+    email = models.EmailField(unique=True)
+
+    REQUIRED_FIELDS = []
+    USERNAME_FIELD = 'email'
+
+
+class Product(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=30, unique=True, blank=False)
     quantity = models.PositiveSmallIntegerField(default=0, blank=False)
@@ -29,10 +48,10 @@ class Products(models.Model):
 
     def save(self, *args, **kwargs):
         self.date_modified = date.today()
-        super(Products, self).save()
+        super(Product, self).save()
 
 
-class Dishes(models.Model):
+class Dish(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=200, unique=True, blank=False)
     photo = models.TextField()
@@ -45,8 +64,8 @@ class Dishes(models.Model):
         Example: {"tomato": 1}
         """
         for key, value in products.items():
-            p = Products.objects.get(name=key)
-            DishesProducts(dish=self, product=p, quantity=value)
+            p = Product.objects.get(name=key)
+            DishProduct(dish=self, product=p, quantity=value)
 
     def get_products(self) -> dict:
         products_dishes = self.dishesproducts_set.all()
@@ -62,11 +81,11 @@ class Dishes(models.Model):
 
     def save(self, *args, **kwargs):
         self.date_modified = date.today()
-        super(Dishes, self).save()
+        super(Dish, self).save()
 
 
-class DishesProducts(models.Model):
+class DishProduct(models.Model):
     id = models.AutoField(primary_key=True)
-    dish = models.ForeignKey(Dishes, on_delete=models.CASCADE)
-    product = models.ForeignKey(Products, on_delete=models.CASCADE)
+    dish = models.ForeignKey(Dish, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0, blank=False)
