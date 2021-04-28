@@ -14,6 +14,17 @@ from .validations import (
 )
 
 
+def handle_validation(func, *args, **kwargs):
+    def lower(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except ValidationError as e:
+            return Response({"data": e.messages}, status=422)
+        except IntegrityError as e:
+            return Response({"error": e.args[1]}, status=422)
+    return lower
+
+
 class CustomGetToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
         schema = LoginValidator()
@@ -37,23 +48,17 @@ class ProductsView(APIView):
         result = Product.objects.all().values()
         return Response({"data": result})
 
+    @handle_validation
     def post(self, request, *args, **kwargs):
         user_data = request.data.get("data", {})
         data = []
         schema = ProductValidator()
-        try:
-            validated = schema.load(user_data)
-            db_obj = Product(**validated)
-            db_obj.save()
-            obj = db_obj.to_dict()
-            data.append(obj)
-        except ValidationError as e:
-            data = e.messages
-        except IntegrityError as e:
-            data = {"error": e.args[1]}
-        else:
-            return Response({"data": data})
-        return Response({"data": data}, status=422)
+        validated = schema.load(user_data)
+        db_obj = Product(**validated)
+        db_obj.save()
+        obj = db_obj.to_dict()
+        data.append(obj)
+        return Response({"data": data})
 
 
 class ProductView(APIView):
@@ -82,26 +87,19 @@ class DishesView(APIView):
         result = Dish.objects.all().values()
         return Response({"data": result})
 
+    @handle_validation
     def post(self, request, *args, **kwargs):
         user_data = request.data.get("data", {})
         data = []
         schema = DishValidator()
-        try:
-            validated = schema.load(user_data)
-            ingredients = validated.pop("ingredients", {})
-
-            db_obj = Dish(**validated)
-            db_obj.insert_products(ingredients)
-            db_obj.save()
-            obj = db_obj.to_dict()
-            data.append(obj)
-        except ValidationError as e:
-            data = e.messages
-        except IntegrityError as e:
-            data = {"error": e.args[1]}
-        else:
-            return Response({"data": data})
-        return Response({"data": data}, status=422)
+        validated = schema.load(user_data)
+        ingredients = validated.pop("ingredients", {})
+        db_obj = Dish(**validated)
+        db_obj.insert_products(ingredients)
+        db_obj.save()
+        obj = db_obj.to_dict()
+        data.append(obj)
+        return Response({"data": data})
 
 
 class DishView(APIView):
