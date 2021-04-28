@@ -14,11 +14,17 @@ class LoginValidator(Schema):
         email = data.get("email")
 
         if email and password:
-            user = authenticate(request=self.context.get("request"), email=email, password=password)
+            user = authenticate(
+                request=self.context.get("request"), email=email, password=password
+            )
             if not user:
-                raise ValidationError("Unable to log in with provided credentials.", code='authorization')
+                raise ValidationError(
+                    "Unable to log in with provided credentials.", code="authorization"
+                )
         else:
-            raise ValidationError("Must include 'email' and 'password'.", code='authorization')
+            raise ValidationError(
+                "Must include 'email' and 'password'.", code="authorization"
+            )
         return user
 
 
@@ -38,9 +44,13 @@ class RegistrationValidation(Schema):
         if password2 != password:
             raise ValidationError("Passwords doesn't match", field_name="password2")
         if CustomUser.objects.filter(email=email).exists():
-            raise ValidationError("User with current email already registered", field_name="email")
+            raise ValidationError(
+                "User with current email already registered", field_name="email"
+            )
         if CustomUser.objects.filter(username=username).exists():
-            raise ValidationError("Current username is already taken", field_name="username")
+            raise ValidationError(
+                "Current username is already taken", field_name="username"
+            )
 
         del data["password2"]
         return data

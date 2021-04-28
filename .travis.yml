@@ -9,6 +9,8 @@ before_script:
   - mysql -u root -e 'CREATE DATABASE home_tools;'
   - mysql -u root -e "CREATE USER 'home_user'@'localhost' IDENTIFIED BY 'home_password'"
   - mysql -u root -e "GRANT ALL PRIVILEGES ON *.* TO 'home_user'@'localhost';"
+  - python manage.py makemigrations food
+  - python manage.py migrate
 script:
   - coverage run --source='.' manage.py test
 after_success:

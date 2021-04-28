@@ -6,11 +6,15 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 
 from .models import Product, Dish, CustomUser
-from .validations import ProductValidator, DishValidator, LoginValidator, RegistrationValidation
+from .validations import (
+    ProductValidator,
+    DishValidator,
+    LoginValidator,
+    RegistrationValidation,
+)
 
 
 class CustomGetToken(ObtainAuthToken):
-
     def post(self, request, *args, **kwargs):
         schema = LoginValidator()
         user = schema.load(request.data.get("data", {}))

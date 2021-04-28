@@ -57,7 +57,10 @@ class Food(TestCase):
         test_data["data"] = [test_data["data"]]
 
         response = self.client.post(
-            "/food/", data=self.test_data, content_type="application/json", **self.headers
+            "/food/",
+            data=self.test_data,
+            content_type="application/json",
+            **self.headers,
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), test_data)
@@ -71,12 +74,17 @@ class Food(TestCase):
         del to_patch["id"]
         del to_patch["date_modified"]
         response = self.client.patch(
-            "/food/1", data={"data": to_patch}, content_type="application/json", **self.headers
+            "/food/1",
+            data={"data": to_patch},
+            content_type="application/json",
+            **self.headers,
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"]["name"], "ttt")
 
-        response = self.client.delete("/dishes/1", content_type="application/json", **self.headers)
+        response = self.client.delete(
+            "/dishes/1", content_type="application/json", **self.headers
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], "Success")
 
@@ -136,7 +144,10 @@ class Dishes(TestCase):
         test_data["data"] = [test_data["data"]]
 
         response = self.client.post(
-            "/dishes/", data=self.test_data, content_type="application/json", **self.headers
+            "/dishes/",
+            data=self.test_data,
+            content_type="application/json",
+            **self.headers,
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), test_data)
@@ -150,12 +161,17 @@ class Dishes(TestCase):
         del to_patch["id"]
         del to_patch["date_modified"]
         response = self.client.patch(
-            "/dishes/1", data={"data": to_patch}, content_type="application/json", **self.headers
+            "/dishes/1",
+            data={"data": to_patch},
+            content_type="application/json",
+            **self.headers,
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"]["name"], "ttt")
 
-        response = self.client.delete("/dishes/1", content_type="application/json", **self.headers)
+        response = self.client.delete(
+            "/dishes/1", content_type="application/json", **self.headers
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], "Success")
 

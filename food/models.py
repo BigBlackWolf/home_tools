@@ -30,7 +30,7 @@ class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
 
     REQUIRED_FIELDS = []
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = "email"
 
 
 class Product(models.Model):
