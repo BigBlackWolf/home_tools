@@ -13,8 +13,13 @@ from .validations import (
     RegistrationValidation,
 )
 
+product_validator = ProductValidator()
+dish_validator = DishValidator()
+login_validator = LoginValidator()
+registration_validation = RegistrationValidation()
 
-def handle_validation(func, *args, **kwargs):
+
+def handle_errors(func, *args, **kwargs):
     def lower(*args, **kwargs):
         try:
             return func(*args, **kwargs)
@@ -22,21 +27,20 @@ def handle_validation(func, *args, **kwargs):
             return Response({"data": e.messages}, status=422)
         except IntegrityError as e:
             return Response({"error": e.args[1]}, status=422)
+
     return lower
 
 
 class CustomGetToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
-        schema = LoginValidator()
-        user = schema.load(request.data.get("data", {}))
+        user = login_validator.load(request.data.get("data", {}))
         token, _ = Token.objects.get_or_create(user=user)
         return Response({"token": token.key, "username": user.username})
 
 
 class CustomRegistration(APIView):
     def post(self, request, *args, **kwargs):
-        schema = RegistrationValidation()
-        validated = schema.load(request.data.get("data", {}))
+        validated = registration_validation.load(request.data.get("data", {}))
         user = CustomUser(**validated)
         user.save()
         token, _ = Token.objects.get_or_create(user=user)
@@ -48,12 +52,11 @@ class ProductsView(APIView):
         result = Product.objects.all().values()
         return Response({"data": result})
 
-    @handle_validation
+    @handle_errors
     def post(self, request, *args, **kwargs):
         user_data = request.data.get("data", {})
         data = []
-        schema = ProductValidator()
-        validated = schema.load(user_data)
+        validated = product_validator.load(user_data)
         db_obj = Product(**validated)
         db_obj.save()
         obj = db_obj.to_dict()
@@ -68,9 +71,7 @@ class ProductView(APIView):
         return Response({"data": result})
 
     def patch(self, request, product_id, *args, **kwargs):
-        schema = ProductValidator()
-        validated = schema.load(request.data.get("data", {}))
-
+        validated = product_validator.load(request.data.get("data", {}))
         product = Product.objects.filter(id=product_id)
         product.update(**validated)
         data = product.values()
@@ -87,12 +88,11 @@ class DishesView(APIView):
         result = Dish.objects.all().values()
         return Response({"data": result})
 
-    @handle_validation
+    @handle_errors
     def post(self, request, *args, **kwargs):
         user_data = request.data.get("data", {})
         data = []
-        schema = DishValidator()
-        validated = schema.load(user_data)
+        validated = dish_validator.load(user_data)
         ingredients = validated.pop("ingredients", {})
         db_obj = Dish(**validated)
         db_obj.insert_products(ingredients)
@@ -109,9 +109,7 @@ class DishView(APIView):
         return Response({"data": result})
 
     def patch(self, request, dish_id, *args, **kwargs):
-        schema = DishValidator()
-        validated = schema.load(request.data.get("data", {}))
-
+        validated = dish_validator.load(request.data.get("data", {}))
         dish = Dish.objects.filter(id=dish_id)
         dish.update(**validated)
         data = dish.values()
