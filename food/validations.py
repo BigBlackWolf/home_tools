@@ -1,7 +1,7 @@
-from marshmallow import fields, Schema, post_load
+from marshmallow import fields, Schema, post_load, post_dump
 from marshmallow.validate import Length, Range, URL, ValidationError
 from django.contrib.auth import authenticate
-from food.models import CustomUser
+from food.models import CustomUser, Product
 
 
 class LoginValidator(Schema):
@@ -63,6 +63,7 @@ class ProductValidator(Schema):
         validate=Range(
             0,
         ),
+        default=0,
         required=True,
     )
     date_modified = fields.Date(dump_only=True)
@@ -77,3 +78,18 @@ class DishValidator(Schema):
     recipe = fields.Str(required=True)
     date_modified = fields.Date(dump_only=True)
     ingredients = fields.Dict(fields.Str, fields.Integer, required=True)
+    user_id = fields.Integer(dump_only=True, required=True)
+
+    @post_dump
+    def match_ingredients(self, data, **kwargs):
+        if "user_id" not in data:
+            return data
+        user_id = data.pop("user_id")
+        ingredients = data["ingredients"]
+        ingredients_presented = Product.objects.filter(name__in=ingredients.keys(), user=user_id).values_list("name", "quantity")
+        ingredients_presented = {i[0]: i[1] for i in ingredients_presented}
+        for ingredient in ingredients:
+            ingredients[ingredient] = {"need": ingredients[ingredient], "present": 0}
+            if ingredient in ingredients_presented:
+                ingredients[ingredient]["present"] = ingredients_presented[ingredient]
+        return data
