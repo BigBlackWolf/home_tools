@@ -33,7 +33,10 @@ class Food(TestCase):
         test_data["data"]["abc"] = "aaa"
 
         response = self.client.post(
-            "/products/", data=test_data, content_type="application/json", **self.headers
+            "/products/",
+            data=test_data,
+            content_type="application/json",
+            **self.headers,
         )
         self.assertEqual(response.status_code, 422)
         self.assertEqual(response.json(), {"data": {"abc": ["Unknown field."]}})
@@ -43,7 +46,10 @@ class Food(TestCase):
         del test_data["data"]["measure"]
 
         response = self.client.post(
-            "/products/", data=test_data, content_type="application/json", **self.headers
+            "/products/",
+            data=test_data,
+            content_type="application/json",
+            **self.headers,
         )
         self.assertEqual(response.status_code, 422)
         self.assertEqual(
@@ -88,7 +94,9 @@ class Food(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], "Success")
 
-        response = self.client.get("/dishes/1", content_type="application/json", **self.headers)
+        response = self.client.get(
+            "/dishes/1", content_type="application/json", **self.headers
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], {})
 
@@ -101,7 +109,7 @@ class Dishes(TestCase):
                 "name": "Pasta",
                 "recipe": "Boil makarons",
                 "photo": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
-                "ingredients": {}
+                "ingredients": {},
             }
         }
 
@@ -176,6 +184,8 @@ class Dishes(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], "Success")
 
-        response = self.client.get("/dishes/1", content_type="application/json", **self.headers)
+        response = self.client.get(
+            "/dishes/1", content_type="application/json", **self.headers
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], {})

@@ -86,7 +86,9 @@ class DishValidator(Schema):
             return data
         user_id = data.pop("user_id")
         ingredients = data["ingredients"]
-        ingredients_presented = Product.objects.filter(name__in=ingredients.keys(), user=user_id).values_list("name", "quantity")
+        ingredients_presented = Product.objects.filter(
+            name__in=ingredients.keys(), user=user_id
+        ).values_list("name", "quantity")
         ingredients_presented = {i[0]: i[1] for i in ingredients_presented}
         for ingredient in ingredients:
             ingredients[ingredient] = {"need": ingredients[ingredient], "present": 0}
