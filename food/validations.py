@@ -13,17 +13,13 @@ class LoginValidator(Schema):
         password = data.get("password")
         email = data.get("email")
 
-        if email and password:
-            user = authenticate(
-                request=self.context.get("request"), email=email, password=password
-            )
-            if not user:
-                raise ValidationError(
-                    "Unable to log in with provided credentials.", code="authorization"
-                )
-        else:
+        # authenticate(request=self.context.get("request"), username="abc", email="abc@anc.com", password="qweqwe")
+        user = authenticate(
+            request=self.context.get("request"), email=email, password=password
+        )
+        if not user:
             raise ValidationError(
-                "Must include 'email' and 'password'.", code="authorization"
+                "Unable to log in with provided credentials.", field_name="password"
             )
         return user
 

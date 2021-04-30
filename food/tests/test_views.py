@@ -6,7 +6,7 @@ from rest_framework.authtoken.models import Token
 from food.models import CustomUser
 
 
-class Food(TestCase):
+class Product(TestCase):
     def setUp(self):
         self.client = Client()
         self.test_data = {
@@ -17,10 +17,12 @@ class Food(TestCase):
                 "category": "Holodilnik",
             }
         }
-        user = CustomUser(email="test@test.com", username="test", password="test")
+        user = CustomUser.objects.create_user(
+            email="test@test.com", username="test", password="tests"
+        )
         user.save()
         token, _ = Token.objects.get_or_create(user=user)
-        self.token = token
+        self.token = token.key
         self.headers = {"HTTP_AUTHORIZATION": f"Token {token}"}
 
     def test_get(self):
@@ -113,10 +115,12 @@ class Dishes(TestCase):
             }
         }
 
-        user = CustomUser(email="test@test.com", username="test", password="test")
+        user = CustomUser.objects.create_user(
+            email="test@test.com", username="test", password="tests"
+        )
         user.save()
         token, _ = Token.objects.get_or_create(user=user)
-        self.token = token
+        self.token = token.key
         self.headers = {"HTTP_AUTHORIZATION": f"Token {token}"}
 
     def test_get(self):
@@ -189,3 +193,102 @@ class Dishes(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], {})
+
+
+class Login(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.test_data = {
+            "data": {
+                "email": "test@test.com",
+                "password": "tests",
+            }
+        }
+        user = CustomUser.objects.create_user(
+            email="test@test.com", username="test", password="tests"
+        )
+        user.save()
+        token, _ = Token.objects.get_or_create(user=user)
+        self.token = token.key
+        self.headers = {"HTTP_AUTHORIZATION": f"Token {token}"}
+
+    def test_fail_login(self):
+        test_data = deepcopy(self.test_data)
+        test_data["data"]["password"] = "12345"
+
+        response = self.client.post(
+            "/login/", test_data, content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(
+            response.json(),
+            {"data": {"password": ["Unable to log in with provided credentials."]}},
+        )
+
+    def test_successful(self):
+        response = self.client.post(
+            "/login/", self.test_data, content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["token"], self.token)
+
+
+class Register(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.test_data = {
+            "data": {
+                "username": "test",
+                "email": "test@test.com",
+                "password": "tests",
+                "password2": "tests",
+            }
+        }
+
+    def test_fail_register(self):
+        test_data = deepcopy(self.test_data)
+        test_data["data"]["password2"] = "qqqqq"
+
+        response = self.client.post(
+            "/register/", test_data, content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(
+            response.json(), {"data": {"password2": ["Passwords doesn't match"]}}
+        )
+
+        response = self.client.post(
+            "/register/", self.test_data, content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 200)
+
+        test_data["data"]["password2"] = self.test_data["data"]["password"]
+        test_data["data"]["username"] = "qqq"
+
+        response = self.client.post(
+            "/register/", test_data, content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(
+            response.json(),
+            {"data": {"email": ["User with current email already registered"]}},
+        )
+
+        test_data["data"]["username"] = self.test_data["data"]["username"]
+        test_data["data"]["email"] = "qqq@qqq.com"
+
+        response = self.client.post(
+            "/register/", test_data, content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(
+            response.json(),
+            {"data": {"username": ["Current username is already taken"]}},
+        )
+
+    def test_successful_register(self):
+        response = self.client.post(
+            "/register/", self.test_data, content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("token", response.json())

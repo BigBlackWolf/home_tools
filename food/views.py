@@ -35,6 +35,7 @@ def handle_errors(func, *args, **kwargs):
 class LoginView(ObtainAuthToken):
     permission_classes = [AllowAny]
 
+    @handle_errors
     def post(self, request, *args, **kwargs):
         user = login_validator.load(request.data.get("data", {}))
         token, _ = Token.objects.get_or_create(user=user)
@@ -44,9 +45,10 @@ class LoginView(ObtainAuthToken):
 class CustomRegistration(APIView):
     permission_classes = [AllowAny]
 
+    @handle_errors
     def post(self, request, *args, **kwargs):
         validated = registration_validation.load(request.data.get("data", {}))
-        user = CustomUser(**validated)
+        user = CustomUser.objects.create_user(**validated)
         user.save()
         token, _ = Token.objects.get_or_create(user=user)
         return Response({"username": user.username, "token": token.key})
