@@ -24,7 +24,7 @@ class Food(TestCase):
         self.headers = {"HTTP_AUTHORIZATION": f"Token {token}"}
 
     def test_get(self):
-        response = self.client.get("/food/")
+        response = self.client.get("/products/", **self.headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"data": []})
 
@@ -33,7 +33,7 @@ class Food(TestCase):
         test_data["data"]["abc"] = "aaa"
 
         response = self.client.post(
-            "/food/", data=test_data, content_type="application/json", **self.headers
+            "/products/", data=test_data, content_type="application/json", **self.headers
         )
         self.assertEqual(response.status_code, 422)
         self.assertEqual(response.json(), {"data": {"abc": ["Unknown field."]}})
@@ -43,7 +43,7 @@ class Food(TestCase):
         del test_data["data"]["measure"]
 
         response = self.client.post(
-            "/food/", data=test_data, content_type="application/json", **self.headers
+            "/products/", data=test_data, content_type="application/json", **self.headers
         )
         self.assertEqual(response.status_code, 422)
         self.assertEqual(
@@ -57,7 +57,7 @@ class Food(TestCase):
         test_data["data"] = [test_data["data"]]
 
         response = self.client.post(
-            "/food/",
+            "/products/",
             data=self.test_data,
             content_type="application/json",
             **self.headers,
@@ -65,7 +65,7 @@ class Food(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), test_data)
 
-        response = self.client.get("/food/1")
+        response = self.client.get("/products/1", **self.headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], test_data["data"][0])
 
@@ -74,7 +74,7 @@ class Food(TestCase):
         del to_patch["id"]
         del to_patch["date_modified"]
         response = self.client.patch(
-            "/food/1",
+            "/products/1",
             data={"data": to_patch},
             content_type="application/json",
             **self.headers,
@@ -88,7 +88,7 @@ class Food(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], "Success")
 
-        response = self.client.get("/dishes/1", content_type="application/json")
+        response = self.client.get("/dishes/1", content_type="application/json", **self.headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], {})
 
@@ -101,6 +101,7 @@ class Dishes(TestCase):
                 "name": "Pasta",
                 "recipe": "Boil makarons",
                 "photo": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png",
+                "ingredients": {}
             }
         }
 
@@ -111,7 +112,7 @@ class Dishes(TestCase):
         self.headers = {"HTTP_AUTHORIZATION": f"Token {token}"}
 
     def test_get(self):
-        response = self.client.get("/dishes/")
+        response = self.client.get("/dishes/", **self.headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"data": []})
 
@@ -152,7 +153,7 @@ class Dishes(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), test_data)
 
-        response = self.client.get("/dishes/1")
+        response = self.client.get("/dishes/1", **self.headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], test_data["data"][0])
 
@@ -175,6 +176,6 @@ class Dishes(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], "Success")
 
-        response = self.client.get("/dishes/1", content_type="application/json")
+        response = self.client.get("/dishes/1", content_type="application/json", **self.headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], {})

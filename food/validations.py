@@ -57,6 +57,7 @@ class RegistrationValidation(Schema):
 
 
 class ProductValidator(Schema):
+    id = fields.Int(dump_only=True)
     name = fields.Str(validate=Length(1, 30), required=True)
     quantity = fields.Integer(
         validate=Range(
@@ -70,8 +71,9 @@ class ProductValidator(Schema):
 
 
 class DishValidator(Schema):
+    id = fields.Integer(dump_only=True)
     name = fields.Str(validate=Length(1, 200), required=True)
     photo = fields.Str(validate=URL())
     recipe = fields.Str(required=True)
     date_modified = fields.Date(dump_only=True)
-    ingredients = fields.Dict(fields.Str, fields.Integer)
+    ingredients = fields.Dict(fields.Str, fields.Integer, required=True)

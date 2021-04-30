@@ -1,9 +1,10 @@
+from django.db.utils import IntegrityError
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from marshmallow.exceptions import ValidationError
-from django.db.utils import IntegrityError
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
+from rest_framework.permissions import AllowAny
+from marshmallow.exceptions import ValidationError
 
 from .models import Product, Dish, CustomUser
 from .validations import (
@@ -31,7 +32,9 @@ def handle_errors(func, *args, **kwargs):
     return lower
 
 
-class CustomGetToken(ObtainAuthToken):
+class LoginView(ObtainAuthToken):
+    permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
         user = login_validator.load(request.data.get("data", {}))
         token, _ = Token.objects.get_or_create(user=user)
@@ -39,6 +42,8 @@ class CustomGetToken(ObtainAuthToken):
 
 
 class CustomRegistration(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request, *args, **kwargs):
         validated = registration_validation.load(request.data.get("data", {}))
         user = CustomUser(**validated)
@@ -49,7 +54,10 @@ class CustomRegistration(APIView):
 
 class ProductsView(APIView):
     def get(self, request, *args, **kwargs):
-        result = Product.objects.all().values()
+        products = Product.objects.filter(user=request.user).values()
+        result = []
+        for product in products:
+            result.append(product_validator.dump(product))
         return Response({"data": result})
 
     @handle_errors
@@ -57,17 +65,19 @@ class ProductsView(APIView):
         user_data = request.data.get("data", {})
         data = []
         validated = product_validator.load(user_data)
+        validated["user"] = request.user
         db_obj = Product(**validated)
         db_obj.save()
-        obj = db_obj.to_dict()
+        obj = product_validator.dump(db_obj)
         data.append(obj)
         return Response({"data": data})
 
 
 class ProductView(APIView):
     def get(self, request, product_id, *args, **kwargs):
-        data = Product.objects.filter(id=product_id).values()
+        data = Product.objects.filter(id=product_id, user=request.user).values()
         result = next(iter(data), {})
+        result = product_validator.dump(result)
         return Response({"data": result})
 
     def patch(self, request, product_id, *args, **kwargs):
@@ -85,7 +95,10 @@ class ProductView(APIView):
 
 class DishesView(APIView):
     def get(self, request, *args, **kwargs):
-        result = Dish.objects.all().values()
+        dishes = Dish.objects.filter(user=request.user).values()
+        result = []
+        for dish in dishes:
+            result.append(dish_validator.dump(dish))
         return Response({"data": result})
 
     @handle_errors
@@ -93,19 +106,19 @@ class DishesView(APIView):
         user_data = request.data.get("data", {})
         data = []
         validated = dish_validator.load(user_data)
-        ingredients = validated.pop("ingredients", {})
+        validated["user"] = request.user
         db_obj = Dish(**validated)
-        db_obj.insert_products(ingredients)
         db_obj.save()
-        obj = db_obj.to_dict()
+        obj = dish_validator.dump(db_obj)
         data.append(obj)
         return Response({"data": data})
 
 
 class DishView(APIView):
     def get(self, request, dish_id, *args, **kwargs):
-        data = Dish.objects.filter(id=dish_id).values()
+        data = Dish.objects.filter(id=dish_id, user=request.user).values()
         result = next(iter(data), {})
+        result = dish_validator.dump(result)
         return Response({"data": result})
 
     def patch(self, request, dish_id, *args, **kwargs):
