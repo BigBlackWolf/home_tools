@@ -1,8 +1,6 @@
 from django.db.utils import IntegrityError
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny
 from marshmallow.exceptions import ValidationError
 
@@ -10,13 +8,11 @@ from .models import Product, Dish, CustomUser
 from .validations import (
     ProductValidator,
     DishValidator,
-    LoginValidator,
     RegistrationValidation,
 )
 
 product_validator = ProductValidator()
 dish_validator = DishValidator()
-login_validator = LoginValidator()
 registration_validation = RegistrationValidation()
 
 
@@ -32,26 +28,15 @@ def handle_errors(func, *args, **kwargs):
     return lower
 
 
-class LoginView(ObtainAuthToken):
-    permission_classes = [AllowAny]
-
-    @handle_errors
-    def post(self, request, *args, **kwargs):
-        user = login_validator.load(request.data.get("data", {}))
-        token, _ = Token.objects.get_or_create(user=user)
-        return Response({"token": token.key, "username": user.username})
-
-
 class CustomRegistration(APIView):
     permission_classes = [AllowAny]
 
     @handle_errors
     def post(self, request, *args, **kwargs):
-        validated = registration_validation.load(request.data.get("data", {}))
+        validated = registration_validation.load(request.data)
         user = CustomUser.objects.create_user(**validated)
         user.save()
-        token, _ = Token.objects.get_or_create(user=user)
-        return Response({"username": user.username, "token": token.key})
+        return Response({"result": "Success"})
 
 
 class ProductsView(APIView):

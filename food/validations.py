@@ -1,27 +1,6 @@
 from marshmallow import fields, Schema, post_load, post_dump
 from marshmallow.validate import Length, Range, URL, ValidationError
-from django.contrib.auth import authenticate
 from food.models import CustomUser, Product
-
-
-class LoginValidator(Schema):
-    email = fields.Email(required=True)
-    password = fields.Str(validate=[Length(5)], required=True)
-
-    @post_load
-    def auth(self, data, **kwargs):
-        password = data.get("password")
-        email = data.get("email")
-
-        # authenticate(request=self.context.get("request"), username="abc", email="abc@anc.com", password="qweqwe")
-        user = authenticate(
-            request=self.context.get("request"), email=email, password=password
-        )
-        if not user:
-            raise ValidationError(
-                "Unable to log in with provided credentials.", field_name="password"
-            )
-        return user
 
 
 class RegistrationValidation(Schema):
