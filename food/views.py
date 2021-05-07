@@ -1,7 +1,12 @@
+import datetime
 from django.db.utils import IntegrityError
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from marshmallow.exceptions import ValidationError
 
 from .models import Product, Dish, CustomUser
@@ -21,11 +26,62 @@ def handle_errors(func, *args, **kwargs):
         try:
             return func(*args, **kwargs)
         except ValidationError as e:
-            return Response({"data": e.messages}, status=422)
+            return Response({"errors": e.messages}, status=422)
         except IntegrityError as e:
-            return Response({"error": e.args[1]}, status=422)
+            return Response({"errors": e.args[1]}, status=422)
 
     return lower
+
+
+class CustomRefresh(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        data = {"refresh": request.COOKIES.get("refresh", "failed")}
+        serializer = self.get_serializer(data=data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except TokenError as e:
+            response = Response(
+                {"errors": e.args[0]}, status=status.HTTP_401_UNAUTHORIZED
+            )
+            response.delete_cookie("refresh")
+            return response
+        except AuthenticationFailed as e:
+            response = Response(
+                {"errors": e.args[0]}, status=status.HTTP_401_UNAUTHORIZED
+            )
+            response.delete_cookie("refresh")
+            return response
+
+        return Response(serializer.validated_data, status=status.HTTP_200_OK)
+
+
+class CustomLogin(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except TokenError as e:
+            raise InvalidToken({"errors": {"credentials": e.args[0]}})
+        except AuthenticationFailed as e:
+            raise AuthenticationFailed({"errors": {"credentials": e.args[0]}})
+
+        data = serializer.validated_data
+        response = Response(data, status=status.HTTP_200_OK)
+        expire_date = datetime.datetime.now() + datetime.timedelta(days=1)
+        response.set_cookie(
+            "refresh", data.get("refresh"), httponly=True, expires=expire_date
+        )
+
+        return response
+
+
+class CustomLogout(APIView):
+    def post(self, request, *args, **kwargs):
+        response = Response({}, status=status.HTTP_200_OK)
+        response.delete_cookie("refresh")
+        return response
 
 
 class CustomRegistration(APIView):

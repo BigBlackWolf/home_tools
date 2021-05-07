@@ -41,8 +41,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'corsheaders',
     "rest_framework",
+    'corsheaders',
     "food",
 ]
 
@@ -55,8 +55,11 @@ REST_FRAMEWORK = {
     ]
 }
 
+CORS_ALLOW_CREDENTIALS = True
+
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8080"
+    "http://localhost:8080",
+    "http://localhost:8000"
 ]
 
 MIDDLEWARE = [
@@ -149,7 +152,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=5),
 
     'ALGORITHM': 'HS256',
 

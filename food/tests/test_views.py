@@ -42,7 +42,7 @@ class Product(TestCase):
             **self.headers,
         )
         self.assertEqual(response.status_code, 422)
-        self.assertEqual(response.json(), {"data": {"abc": ["Unknown field."]}})
+        self.assertEqual(response.json(), {"errors": {"abc": ["Unknown field."]}})
 
     def test_post_without_measure(self):
         test_data = deepcopy(self.test_data)
@@ -56,7 +56,8 @@ class Product(TestCase):
         )
         self.assertEqual(response.status_code, 422)
         self.assertEqual(
-            response.json(), {"data": {"measure": ["Missing data for required field."]}}
+            response.json(),
+            {"errors": {"measure": ["Missing data for required field."]}},
         )
 
     def test_post_successful(self):
@@ -139,7 +140,7 @@ class Dishes(TestCase):
             "/dishes/", data=test_data, content_type="application/json", **self.headers
         )
         self.assertEqual(response.status_code, 422)
-        self.assertEqual(response.json(), {"data": {"abc": ["Unknown field."]}})
+        self.assertEqual(response.json(), {"errors": {"abc": ["Unknown field."]}})
 
     def test_post_without_name(self):
         test_data = deepcopy(self.test_data)
@@ -150,7 +151,7 @@ class Dishes(TestCase):
         )
         self.assertEqual(response.status_code, 422)
         self.assertEqual(
-            response.json(), {"data": {"name": ["Missing data for required field."]}}
+            response.json(), {"errors": {"name": ["Missing data for required field."]}}
         )
 
     def test_post_successful(self):
@@ -225,7 +226,11 @@ class Login(TestCase):
         self.assertEqual(response.status_code, 401)
         self.assertEqual(
             response.json(),
-            {"detail": "No active account found with the given credentials"},
+            {
+                "errors": {
+                    "credentials": "No active account found with the given credentials"
+                }
+            },
         )
 
     def test_successful(self):
@@ -254,7 +259,7 @@ class Register(TestCase):
         )
         self.assertEqual(response.status_code, 422)
         self.assertEqual(
-            response.json(), {"data": {"password2": ["Passwords doesn't match"]}}
+            response.json(), {"errors": {"password2": ["Passwords doesn't match"]}}
         )
 
         response = self.client.post(
@@ -271,7 +276,7 @@ class Register(TestCase):
         self.assertEqual(response.status_code, 422)
         self.assertEqual(
             response.json(),
-            {"data": {"email": ["User with current email already registered"]}},
+            {"errors": {"email": ["User with current email already registered"]}},
         )
 
         test_data["username"] = self.test_data["username"]
@@ -283,7 +288,7 @@ class Register(TestCase):
         self.assertEqual(response.status_code, 422)
         self.assertEqual(
             response.json(),
-            {"data": {"username": ["Current username is already taken"]}},
+            {"errors": {"username": ["Current username is already taken"]}},
         )
 
     def test_successful_register(self):

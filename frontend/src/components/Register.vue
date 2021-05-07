@@ -1,6 +1,6 @@
 <template>
   <b-container>
-    <b-form @submit="onSubmit" @reset="onReset" v-if="show">
+    <b-form @submit="onSubmit" v-if="show">
       <b-form-group
         id="input-group-1"
         label="Email address:"
@@ -16,37 +16,49 @@
         ></b-form-input>
       </b-form-group>
 
-      <b-form-group id="input-group-2" label="Your Name:" label-for="input-2">
+      <b-form-group
+        id="input-group-2"
+        label="Username:"
+        label-for="input-2"
+      >
         <b-form-input
           id="input-2"
-          v-model="form.name"
-          placeholder="Enter name"
+          v-model="form.username"
+          type="text"
+          placeholder="Enter username"
           required
         ></b-form-input>
       </b-form-group>
 
-      <b-form-group id="input-group-3" label="Food:" label-for="input-3">
-        <b-form-select
+      <b-form-group
+        id="input-group-3"
+        label="Password:"
+        label-for="input-3"
+      >
+        <b-form-input
           id="input-3"
-          v-model="form.food"
-          :options="foods"
+          v-model="form.password"
+          type="password"
+          placeholder="Enter password"
           required
-        ></b-form-select>
+        ></b-form-input>
       </b-form-group>
 
-      <b-form-group id="input-group-4" v-slot="{ ariaDescribedby }">
-        <b-form-checkbox-group
-          v-model="form.checked"
-          id="checkboxes-4"
-          :aria-describedby="ariaDescribedby"
-        >
-          <b-form-checkbox value="me">Check me out</b-form-checkbox>
-          <b-form-checkbox value="that">Check that out</b-form-checkbox>
-        </b-form-checkbox-group>
+      <b-form-group
+        id="input-group-4"
+        label="Repeat password:"
+        label-for="input-4"
+      >
+        <b-form-input
+          id="input-4"
+          v-model="form.password2"
+          type="password"
+          placeholder="Enter password"
+          required
+        ></b-form-input>
       </b-form-group>
 
       <b-button type="submit" variant="primary">Submit</b-button>
-      <b-button type="reset" variant="danger">Reset</b-button>
     </b-form>
     <b-card class="mt-3" header="Form Data Result">
       <pre class="m-0">{{ form }}</pre>
@@ -55,37 +67,49 @@
 </template>
 
 <script>
+import router from "../router";
+
 export default {
   name: "Register",
   data() {
     return {
       form: {
         email: '',
-        name: '',
-        food: null,
-        checked: []
+        username: '',
+        password: '',
+        password2: '',
       },
-      foods: [{text: 'Select One', value: null}, 'Carrots', 'Beans', 'Tomatoes', 'Corn'],
       show: true
     }
   },
   methods: {
-    onSubmit(event) {
+    async onSubmit(event) {
       event.preventDefault()
-      alert(JSON.stringify(this.form))
-    },
-    onReset(event) {
-      event.preventDefault()
-      // Reset our form values
-      this.form.email = ''
-      this.form.name = ''
-      this.form.food = null
-      this.form.checked = []
-      // Trick to reset/clear native browser form validation state
-      this.show = false
-      this.$nextTick(() => {
-        this.show = true
-      })
+      let data = {
+        email: this.form.email,
+        username: this.form.username,
+        password: this.form.password,
+        password2: this.form.password2,
+      }
+
+      const resp = await fetch(
+        'http://localhost:8000/register/',
+        {
+          method: 'post',
+          headers: new Headers({
+            'Content-Type': 'application/json',
+          }),
+          body: JSON.stringify(data),
+        }
+      )
+
+      if (resp.status === 200){
+          await router.push("login")
+        }
+        else {
+          let data = await resp.json()
+          console.log(data.errors)
+      }
     }
   }
 }

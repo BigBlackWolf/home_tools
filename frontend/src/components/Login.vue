@@ -39,38 +39,48 @@
 </template>
 
 <script>
-import axios from 'axios';
+import router from "../router";
 
 export default {
   name: "Login",
   data() {
     return {
       form: {
-        email: '',
-        password: '',
+        email: 'user@user.com',
+        password: 'user',
       },
       show: true
     }
   },
   methods: {
-    onSubmit(event) {
+    async onSubmit(event) {
       event.preventDefault()
       let data = {
         email: this.form.email,
         password: this.form.password
       }
-      axios.post(
-        "http://localhost:8000/login/",
-        data
-      ).then(response => {
-        console.log(response.data.access)
-        axios.get("http://localhost:8000/dishes/", {headers: {Authorization: 'Bearer ' + response.data.access}})
-          .then(
-          response2 => {
-            console.log(response)
-          }
-        )
-      })
+
+      const resp = await fetch(
+        'http://localhost:8000/login/',
+        {
+          method: 'post',
+          headers: new Headers({
+            'Content-Type': 'application/json',
+          }),
+          credentials: "include",
+          body: JSON.stringify(data),
+        }
+      )
+
+      if (resp.status === 200){
+          const response = await resp.json()
+          await this.$store.commit('setToken', response.access)
+          await router.push("dishes")
+        }
+        else {
+          let data = await resp.json()
+          console.log(data.errors)
+      }
     }
   }
 }
