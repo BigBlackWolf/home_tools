@@ -32,9 +32,6 @@
 
       <b-button type="submit" variant="primary">Submit</b-button>
     </b-form>
-    <b-card class="mt-3" header="Form Data Result">
-      <pre class="m-0">{{ form }}</pre>
-    </b-card>
   </b-container>
 </template>
 
@@ -73,9 +70,10 @@ export default {
       )
 
       if (resp.status === 200){
-          const response = await resp.json()
-          await this.$store.commit('setToken', response.access)
-          await router.push("dishes")
+          const response = await resp.json();
+          localStorage.setItem("token", response.access);
+          this.$root.$emit("login");
+          await router.push("dishes");
         }
         else {
           let data = await resp.json()

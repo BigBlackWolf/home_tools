@@ -1,18 +1,18 @@
 <template>
   <b-container class="mt-4">
-    <b-card-group deck v-for="(row, index) in getDishes()" :key="index">
-      <b-card v-for="dish in row"
+    <b-card-group deck v-for="(row, index) in getProducts" :key="index">
+      <b-card v-for="product in row"
               img-alt="Card image"
               img-top
               img-src="https://picsum.photos/400/400/?image=20"
               class="mb-3"
-              :title="dish.name"
-              style="max-width: 20rem;"
-              :key="dish.name"
+              :title="product.name"
+              style="max-width: 10rem;"
+              :key="product.name"
       >
           <b-card-text style="max-width: 270px; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;
 overflow: hidden;">
-            {{ dish.recipe }}
+            {{ product.name }}
           </b-card-text>
       </b-card>
     </b-card-group>
@@ -22,17 +22,15 @@ overflow: hidden;">
 <script>
 
 export default {
-  name: "Dishes",
-  methods: {
-    // TODO: make it mounted
-    getDishes() {
-      let dishes = this.$store.getters.allDishes;
-      console.log("Dishes ===>", dishes)
+  name: "Products",
+  computed: {
+    getProducts() {
+      let products = this.$store.getters.allProducts;
       let result = [];
       let tmp = [];
-      for (let dish of dishes) {
-        tmp.push(dish)
-        if (tmp.length === 4) {
+      for (let product of products) {
+        tmp.push(product)
+        if (tmp.length === 8) {
           result.push(tmp)
           tmp = []
         }
@@ -42,7 +40,7 @@ export default {
     }
   },
   async mounted() {
-    await this.$store.dispatch('fetchDishes');
+    await this.$store.dispatch('fetchProducts');
   }
 }
 </script>

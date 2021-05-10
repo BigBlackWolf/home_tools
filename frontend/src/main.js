@@ -11,33 +11,45 @@ Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 Vue.use(Vuex)
 
+// TODO: add loggedIn flag
+const getDefaultState = () => {
+  return {
+    dishes: [],
+    products: []
+  }
+}
+
 const store = new Vuex.Store({
   getters: {
     allDishes(state) {
       return state.dishes
     },
-    getToken(state) {
-      return localStorage.getItem("token")
+    allProducts(state) {
+      return state.products
     }
   },
-  state: {
-    dishes: [],
-  },
+  state: getDefaultState(),
   mutations: {
-    setToken(state, token) {
-      localStorage.setItem("token", token)
-    },
     updateDishes(state, dishes) {
       state.dishes = dishes
     },
+    updateProducts(state, products) {
+      state.products = products
+    },
+    clearState(state) {
+      let s = getDefaultState()
+      Object.keys(s).forEach(key => {
+        state[key] = s[key]
+      })
+    }
   },
   actions: {
-    async checkToken({getters, commit}) {
+    async checkToken() {
       await fetch(
         'http://localhost:8000/token/verify/',
         {
           method: 'post',
-          body: JSON.stringify({token: getters.getToken}),
+          body: JSON.stringify({token: localStorage.getItem("token")}),
           headers: new Headers({
             'Content-Type': 'application/json'
           })
@@ -49,7 +61,7 @@ const store = new Vuex.Store({
         })
     },
 
-    async refreshToken({commit}) {
+    async refreshToken() {
       await fetch(
         'http://localhost:8000/token/refresh/',
         {
@@ -63,19 +75,19 @@ const store = new Vuex.Store({
             throw Error("Forbidden " + resp.status)
           } else {
             const token = await resp.json()
-            commit('setToken', token.access)
+            localStorage.setItem("token", token.access)
           }
         })
         .catch(resp => {
-          commit('setToken', '')
+          localStorage.setItem("token", "")
           alert("Please login")
           router.push("login")
         })
     },
 
-    async fetchDishes({commit, getters, dispatch}) {
+    async fetchDishes({commit, dispatch}) {
       await dispatch('checkToken')
-      if (getters.getToken === '') {
+      if (localStorage.getItem("token") === "") {
         await dispatch('refreshToken')
       }
 
@@ -84,7 +96,7 @@ const store = new Vuex.Store({
         {
           method: 'get',
           headers: new Headers({
-            'Authorization': 'Bearer ' + getters.getToken
+            'Authorization': 'Bearer ' + localStorage.getItem("token")
           }),
         }
       )
@@ -92,19 +104,40 @@ const store = new Vuex.Store({
       commit('updateDishes', dishes.data)
     },
 
-    async logout({commit, getters}) {
+    async fetchProducts({commit, dispatch}) {
+      await dispatch('checkToken')
+      if (localStorage.getItem("token") === '') {
+        await dispatch('refreshToken')
+      }
+
+      const resp = await fetch(
+        'http://localhost:8000/products/',
+        {
+          method: 'get',
+          headers: new Headers({
+            'Authorization': 'Bearer ' + localStorage.getItem("token")
+          }),
+        }
+      )
+      const products = await resp.json()
+      commit('updateProducts', products.data)
+    },
+
+    async logout({commit}) {
       await fetch(
         'http://localhost:8000/logout/',
         {
           method: 'post',
           credentials: 'include',
           headers: new Headers({
-            'Authorization': 'Bearer ' + getters.getToken
+            'Authorization': 'Bearer ' + localStorage.getItem("token")
           }),
           body: {},
         }
-      ).then(
-        commit('setToken', '')
+      ).then(function()  {
+        commit('clearState')
+        localStorage.setItem("token", "")
+      }
       )
     }
   }

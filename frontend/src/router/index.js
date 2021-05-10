@@ -4,6 +4,7 @@ import Main from '@/components/Main'
 import Login from "../components/Login";
 import Dishes from "../components/Dishes";
 import Register from "../components/Register";
+import Products from "../components/Products";
 
 Vue.use(Router)
 
@@ -18,6 +19,11 @@ export default new Router({
       path: '/dishes',
       name: 'Dishes',
       component: Dishes
+    },
+    {
+      path: '/products',
+      name: 'Products',
+      component: Products
     },
     {
       path: '/login',
