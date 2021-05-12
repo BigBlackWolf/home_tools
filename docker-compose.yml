@@ -16,7 +16,7 @@ services:
 
   backend:
     build: ./backend
-    command: python manage.py runserver 0.0.0.0:8000
+    command: gunicorn --bind 0.0.0.0:8000 home_tools.wsgi
     volumes:
     - ./backend:/app
     ports:
