@@ -10,25 +10,27 @@ Project for automation home exercises
 
 - Mysql 8.0.23
 - Python 3.8.2
+- VueJs 4.5.12
 
 ## Installation
 
-
-- Install packages
-```shell
-sudo apt-get install python3-dev libmysqlclient-dev build-essential
+Build images
+```shell script
+docker-compose build
 ```
 
-- Create db
-```mysql
-CREATE USER 'home_user'@'localhost' IDENTIFIED BY 'home_password';
-CREATE DATABASE home_tools;
-GRANT ALL PRIVILEGES ON *.* TO 'home_user'@'localhost';
+Run db migrations
+```shell script
+docker-compose run app python manage.py makemigrations food
+docker-compose run app python manage.py migrate
 ```
 
-- Install dependencies
-```shell
-pip install -r requirement.txt
-python manage.py makemigrations
-python manage.py migrate
+Create admin user
+```shell script
+docker-compose run app python manage.py createsuperuser
+```
+
+Run your app
+```shell script
+docker-compose up
 ```

@@ -11,14 +11,10 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
-import environ
 from datetime import timedelta
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-env = environ.Env()
-env.read_env(BASE_DIR + "/.env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -29,7 +25,11 @@ SECRET_KEY = "(@!$+5-7e30p0)f3-p7fm=vg)a^$v=b+jk8(b^u!y97y*!%_g9"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "0.0.0.0",
+    "localhost",
+    "127.0.0.1",
+]
 
 
 # Application definition
@@ -59,7 +59,8 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
-    "http://localhost:8000"
+    "http://localhost:8000",
+    'http://0.0.0.0:8000',
 ]
 
 MIDDLEWARE = [
@@ -100,10 +101,10 @@ WSGI_APPLICATION = "home_tools.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": env.str("NAME"),
-        "USER": env.str("USERNAME"),
-        "PASSWORD": env.str("PASSWORD"),
-        "HOST": env.str("HOST"),
+        "NAME": os.environ.get("MYSQL_DATABASE", "home_tools"),
+        "USER": os.environ.get("MYSQL_ROOT_USERNAME", "home_user"),
+        "PASSWORD": os.environ.get("MYSQL_ROOT_PASSWORD", "home_password"),
+        "HOST": os.environ.get("MYSQL_HOST", "localhost"),
     }
 }
 

@@ -1,0 +1,36 @@
+version: '3'
+services:
+  db:
+    image: mysql:5.7
+    ports:
+    - '3306:3306'
+    expose:
+      - '3306'
+    environment:
+      MYSQL_DATABASE: 'home_tools'
+      MYSQL_ROOT_PASSWORD: 'home_password'
+    volumes:
+    - db-storage:/var/lib/mysql
+    networks:
+      - app-network
+
+  backend:
+    build: ./backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+    - ./backend:/app
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+    networks:
+      - app-network
+    env_file:
+      - config/dev.env
+
+volumes:
+  db-storage:
+
+networks:
+  app-network:
+    driver: bridge
