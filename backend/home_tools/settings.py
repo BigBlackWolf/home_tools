@@ -42,8 +42,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    'corsheaders',
-    "food",
+    "corsheaders",
+    "api",
 ]
 
 REST_FRAMEWORK = {
@@ -130,7 +130,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = "food.CustomUser"
+AUTH_USER_MODEL = "api.CustomUser"
 
 
 # Internationalization

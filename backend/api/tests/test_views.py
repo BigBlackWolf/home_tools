@@ -2,7 +2,7 @@ from django.test.testcases import TestCase, Client
 from copy import deepcopy
 from datetime import date
 
-from food.models import CustomUser
+from api.models import CustomUser
 
 
 class Product(TestCase):

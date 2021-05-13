@@ -1,6 +1,6 @@
 from marshmallow import fields, Schema, post_load, post_dump
 from marshmallow.validate import Length, Range, URL, ValidationError
-from food.models import CustomUser, Product
+from .models import CustomUser, Product
 
 
 class RegistrationValidation(Schema):

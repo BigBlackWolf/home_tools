@@ -21,7 +21,7 @@ docker-compose build
 
 Run db migrations
 ```shell script
-docker-compose run app python manage.py makemigrations food
+docker-compose run app python manage.py makemigrations api
 docker-compose run app python manage.py migrate
 ```
 
