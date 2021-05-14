@@ -15,9 +15,11 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from api.urls import urls
+from api.urls import urls as api_urls
+from kitchen.urls import urls as kitchen_urls
 
 urlpatterns = [
     url(r"^admin/", admin.site.urls),
-    url(r"", include(urls)),
+    url(r"^api/", include(api_urls)),
+    url(r"", include(kitchen_urls)),
 ]

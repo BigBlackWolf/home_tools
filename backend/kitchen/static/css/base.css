@@ -1,0 +1,7 @@
+#navbarNavDropdown > ul:last-child {
+    margin-left: auto;
+}
+
+#app {
+    min-height: 500px;
+}
