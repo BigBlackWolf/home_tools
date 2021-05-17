@@ -21,13 +21,13 @@ class Product(TestCase):
         )
         user.save()
         response = self.client.post(
-            "/login/", {"email": user.email, "password": "tests"}
+            "/api/login/", {"email": user.email, "password": "tests"}
         )
         self.token = response.data["access"]
         self.headers = {"HTTP_AUTHORIZATION": f"Bearer {self.token}"}
 
     def test_get(self):
-        response = self.client.get("/products/", **self.headers)
+        response = self.client.get("/api/products/", **self.headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"data": []})
 
@@ -36,7 +36,7 @@ class Product(TestCase):
         test_data["data"]["abc"] = "aaa"
 
         response = self.client.post(
-            "/products/",
+            "/api/products/",
             data=test_data,
             content_type="application/json",
             **self.headers,
@@ -49,7 +49,7 @@ class Product(TestCase):
         del test_data["data"]["measure"]
 
         response = self.client.post(
-            "/products/",
+            "/api/products/",
             data=test_data,
             content_type="application/json",
             **self.headers,
@@ -67,7 +67,7 @@ class Product(TestCase):
         test_data["data"] = [test_data["data"]]
 
         response = self.client.post(
-            "/products/",
+            "/api/products/",
             data=self.test_data,
             content_type="application/json",
             **self.headers,
@@ -75,7 +75,7 @@ class Product(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), test_data)
 
-        response = self.client.get("/products/1", **self.headers)
+        response = self.client.get("/api/products/1", **self.headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], test_data["data"][0])
 
@@ -84,7 +84,7 @@ class Product(TestCase):
         del to_patch["id"]
         del to_patch["date_modified"]
         response = self.client.patch(
-            "/products/1",
+            "/api/products/1",
             data={"data": to_patch},
             content_type="application/json",
             **self.headers,
@@ -93,13 +93,13 @@ class Product(TestCase):
         self.assertEqual(response.json()["data"]["name"], "ttt")
 
         response = self.client.delete(
-            "/dishes/1", content_type="application/json", **self.headers
+            "/api/dishes/1", content_type="application/json", **self.headers
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], "Success")
 
         response = self.client.get(
-            "/dishes/1", content_type="application/json", **self.headers
+            "/api/dishes/1", content_type="application/json", **self.headers
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], {})
@@ -122,13 +122,13 @@ class Dishes(TestCase):
         )
         user.save()
         response = self.client.post(
-            "/login/", {"email": user.email, "password": "tests"}
+            "/api/login/", {"email": user.email, "password": "tests"}
         )
         self.token = response.data["access"]
         self.headers = {"HTTP_AUTHORIZATION": f"Bearer {self.token}"}
 
     def test_get(self):
-        response = self.client.get("/dishes/", **self.headers)
+        response = self.client.get("/api/dishes/", **self.headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"data": []})
 
@@ -137,7 +137,7 @@ class Dishes(TestCase):
         test_data["data"]["abc"] = "aaa"
 
         response = self.client.post(
-            "/dishes/", data=test_data, content_type="application/json", **self.headers
+            "/api/dishes/", data=test_data, content_type="application/json", **self.headers
         )
         self.assertEqual(response.status_code, 422)
         self.assertEqual(response.json(), {"errors": {"abc": ["Unknown field."]}})
@@ -147,7 +147,7 @@ class Dishes(TestCase):
         del test_data["data"]["name"]
 
         response = self.client.post(
-            "/dishes/", data=test_data, content_type="application/json", **self.headers
+            "/api/dishes/", data=test_data, content_type="application/json", **self.headers
         )
         self.assertEqual(response.status_code, 422)
         self.assertEqual(
@@ -161,7 +161,7 @@ class Dishes(TestCase):
         test_data["data"] = [test_data["data"]]
 
         response = self.client.post(
-            "/dishes/",
+            "/api/dishes/",
             data=self.test_data,
             content_type="application/json",
             **self.headers,
@@ -169,7 +169,7 @@ class Dishes(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), test_data)
 
-        response = self.client.get("/dishes/1", **self.headers)
+        response = self.client.get("/api/dishes/1", **self.headers)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], test_data["data"][0])
 
@@ -178,7 +178,7 @@ class Dishes(TestCase):
         del to_patch["id"]
         del to_patch["date_modified"]
         response = self.client.patch(
-            "/dishes/1",
+            "/api/dishes/1",
             data={"data": to_patch},
             content_type="application/json",
             **self.headers,
@@ -187,13 +187,13 @@ class Dishes(TestCase):
         self.assertEqual(response.json()["data"]["name"], "ttt")
 
         response = self.client.delete(
-            "/dishes/1", content_type="application/json", **self.headers
+            "/api/dishes/1", content_type="application/json", **self.headers
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], "Success")
 
         response = self.client.get(
-            "/dishes/1", content_type="application/json", **self.headers
+            "/api/dishes/1", content_type="application/json", **self.headers
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["data"], {})
@@ -211,7 +211,7 @@ class Login(TestCase):
         )
         user.save()
         response = self.client.post(
-            "/login/", {"email": user.email, "password": "tests"}
+            "/api/login/", {"email": user.email, "password": "tests"}
         )
         self.token = response.data["access"]
         self.headers = {"HTTP_AUTHORIZATION": f"Bearer {self.token}"}
@@ -221,7 +221,7 @@ class Login(TestCase):
         test_data["password"] = "12345"
 
         response = self.client.post(
-            "/login/", test_data, content_type="application/json"
+            "/api/login/", test_data, content_type="application/json"
         )
         self.assertEqual(response.status_code, 401)
         self.assertEqual(
@@ -235,7 +235,7 @@ class Login(TestCase):
 
     def test_successful(self):
         response = self.client.post(
-            "/login/", self.test_data, content_type="application/json"
+            "/api/login/", self.test_data, content_type="application/json"
         )
         self.assertEqual(response.status_code, 200)
 
@@ -255,7 +255,7 @@ class Register(TestCase):
         test_data["password2"] = "qqqqq"
 
         response = self.client.post(
-            "/register/", test_data, content_type="application/json"
+            "/api/register/", test_data, content_type="application/json"
         )
         self.assertEqual(response.status_code, 422)
         self.assertEqual(
@@ -263,7 +263,7 @@ class Register(TestCase):
         )
 
         response = self.client.post(
-            "/register/", self.test_data, content_type="application/json"
+            "/api/register/", self.test_data, content_type="application/json"
         )
         self.assertEqual(response.status_code, 200)
 
@@ -271,7 +271,7 @@ class Register(TestCase):
         test_data["username"] = "qqq"
 
         response = self.client.post(
-            "/register/", test_data, content_type="application/json"
+            "/api/register/", test_data, content_type="application/json"
         )
         self.assertEqual(response.status_code, 422)
         self.assertEqual(
@@ -283,7 +283,7 @@ class Register(TestCase):
         test_data["email"] = "qqq@qqq.com"
 
         response = self.client.post(
-            "/register/", test_data, content_type="application/json"
+            "/api/register/", test_data, content_type="application/json"
         )
         self.assertEqual(response.status_code, 422)
         self.assertEqual(
@@ -293,6 +293,6 @@ class Register(TestCase):
 
     def test_successful_register(self):
         response = self.client.post(
-            "/register/", self.test_data, content_type="application/json"
+            "/api/register/", self.test_data, content_type="application/json"
         )
         self.assertEqual(response.status_code, 200)
