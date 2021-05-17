@@ -1,22 +1,32 @@
 stages:
+  - build
   - test
 
+build-app:
+  image: docker:git
+  stage: build
+  script:
+    - docker build backend/
+
 services:
-    - mysql:latest
-  variables:
-    MYSQL_DATABASE: "home_tools"
-    MYSQL_ROOT_PASSWORD: "home_password"
-    MYSQL_HOST: "db"
+    - mysql:5.7
+
+variables:
+  MYSQL_DATABASE: "home_tools"
+  MYSQL_ROOT_PASSWORD: "home_password"
+  MYSQL_ROOT_USERNAME: "root"
+  MYSQL_HOST: "mysql"
 
 test-app:
   image: python:3.7
   stage: test
   before_script:
     - cd backend
-    - python manage.py makemigrations api
-  script:
     - pip install -r requirements.txt
     - pip install pytest coverage
+    - python manage.py makemigrations api
+    - python manage.py migrate
+  script:
     - coverage run manage.py test
     - coverage report
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
