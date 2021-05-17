@@ -1,0 +1,26 @@
+stages:
+  - build
+  - test
+
+
+build-app:
+  stage: build
+  image: docker:git
+  script:
+    - docker build backend/
+  artifacts:
+    expire_in: 1 day
+
+test-app:
+  image: python:3.7
+  stage: test
+  tags:
+    - kube
+  script:
+    - pip install -r backend/requirements.txt
+    - pip install pytest coverage
+    - cd backend/
+    - coverage run --source=src/ -m pytest
+    - coverage report
+  coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
+  when: manual
