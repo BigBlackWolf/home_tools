@@ -6,7 +6,8 @@ build-app:
   image: docker:git
   stage: build
   script:
-    - docker build backend/
+    - echo $CI_JOB_TOKEN
+    # - docker build backend/
 
 services:
     - mysql:5.7
