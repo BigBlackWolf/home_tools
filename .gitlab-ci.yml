@@ -6,7 +6,8 @@ build-app:
   image: docker:git
   stage: build
   script:
-    - docker build backend/
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build -t $CI_REGISTRY_IMAGE backend/
 
 services:
     - mysql:5.7
