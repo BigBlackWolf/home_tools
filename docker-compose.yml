@@ -16,11 +16,10 @@ services:
 
   backend:
     build: ./backend
-    command: gunicorn --bind 0.0.0.0:8000 home_tools.wsgi
     volumes:
     - ./backend:/app
     ports:
-      - '8000:8000'
+      - '80:80'
     depends_on:
       - db
     networks:
