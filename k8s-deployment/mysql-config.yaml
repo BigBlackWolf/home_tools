@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-configmap
+data:
+  mysql_database_name: home_tools
+  mysql_host: mysql-service

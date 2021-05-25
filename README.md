@@ -21,8 +21,8 @@ docker-compose build
 
 Run db migrations
 ```shell script
-docker-compose run app python manage.py makemigrations api
-docker-compose run app python manage.py migrate
+docker-compose run backend python manage.py makemigrations api
+docker-compose run backend python manage.py migrate
 ```
 
 Create admin user
@@ -33,4 +33,12 @@ docker-compose run app python manage.py createsuperuser
 Run your app
 ```shell script
 docker-compose up
+```
+
+
+To push Image to dockerhub:
+
+```shell script
+docker build -t bigblackwolf/home_tools:backend backend 
+docker push bigblackwolf/home_tools:backend
 ```
