@@ -1,16 +1,11 @@
 from django.urls import path
-from .views import dishes, products, index, register, login
+from .views import dishes, products, index, register, login, dish_detail
 
 urls = [
-    path(r"dishes/", dishes),
-    path(r"products/", products),
+    path(r"dishes", dishes),
+    path(r"dishes/<int:dish_id>", dish_detail),
+    path(r"products", products),
     path(r"", index),
-    path(r"register/", register),
-    path(r"login/", login),
-    # path(r"products/", ProductsView.as_view()),
-    # path(r"products/<int:product_id>", ProductView.as_view()),
-    # path(r"dishes/<int:dish_id>", DishView.as_view()),
-    # path(r"register/", CustomRegistration.as_view()),
-    # path(r"login/", CustomLogin.as_view()),
-    # path(r"logout/", CustomLogout.as_view()),
+    path(r"register", register),
+    path(r"login", login),
 ]

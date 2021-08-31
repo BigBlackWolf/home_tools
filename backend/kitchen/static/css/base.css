@@ -1,6 +1,6 @@
 body {
     background-color: #f2f0f0;
-    color: #ffffff;
+    color: #000000;
 }
 
 p {
@@ -13,4 +13,8 @@ p {
 
 #app {
     min-height: 500px;
+}
+
+#footer {
+     color: #ffffff;
 }
